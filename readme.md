@@ -51,6 +51,21 @@ proxies = {
 nrc = NRC.NessusRestClient(server,username,password,proxies=proxies)
 
 ```
+OR use Nessus API Keys
+
+```python
+import NessusClient as NRC
+
+proxies = {
+  "http": "http://127.0.0.1:8080",
+  "https": "http://127.0.0.1:8080",
+}
+username = ''
+password = ''
+nrc = NRC.NessusRestClient(server,username,password,proxies=proxies,keys=True,access_key=access,secret_key=secret)
+
+```
+
 
 ### Download a Report
 
