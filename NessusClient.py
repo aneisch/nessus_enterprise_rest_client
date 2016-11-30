@@ -239,13 +239,13 @@ class NessusRestClient:
            raise Exception('Unknown Response')
 
    def get_settings_dict(self, policy_uuid, scan_name, description,
-                         emails, targets, folder_id=None):
+                         emails, targets, policy_id, folder_id=None):
        ''' returns an scan settings dictionary.
            this is the minimum set of required fields
            for creating a new scan.
            'targets' and 'emails' must be a list
            review /nessus6-api.html/resources/scans/create for more
-       '''
+       ''' 
        assert type(targets) is list
        assert type(emails) is list
        targets = '\n'.join(targets)  # must be a newline delim string
@@ -255,10 +255,12 @@ class NessusRestClient:
                 'name': scan_name,
                 'emails': emails,
                 'description': description,
+                'policy_id': policy_id,
                 'text_targets': targets}}
        if folder_id:
            d['settings']['folder_id'] = str(folder_id)
        return d
+
 
    def create_scan(self, settings):
        ''' create a new scan. settings is a dict from
@@ -290,6 +292,13 @@ class NessusRestClient:
        else:
            raise Exception('modify scan - Unknown Status')
 
+
+   def scan_action(self, scan_id, command):
+	''' do something to a scan (start, stop..) '''
+	url = self.url + '/scans/' + str(scan_id) + "/" + command
+	r = self.__request(url, method='POST')
+
+
    def launch_scan(self, scan_id):
        ''' launch a scan by its scan_id '''
        url = self.url + '/scans/' + str(scan_id) + '/launch'
@@ -314,7 +323,7 @@ class NessusRestClient:
        else:
            raise Exception('Delete Scan - Unknown Status')
 
-   def export_scan(self, scan_id, format, chapters=None):
+   def export_scan(self, scan_id, format, chapters=['vuln_hosts_summary','vuln_by_host']):
        ''' requests a report export; returns file_id
            scan_id - int of scan id
            format - string, 'nessus','html','pdf', 'csv' or 'db'
